@@ -11,11 +11,18 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
-if (typeof (localStorage.getItem("playerID") !== "string")) {
-  generateID();
+function initial() {
+  const playerID = localStorage.getItem("playerID");
+  if (typeof playerID !== "string") {
+    generateID();
+  }
 }
-
 function generateID() {
-  playerID = Math.floor(Math.random() * 10000000000000);
+  playerID = Math.floor(Math.random() * 900000000) + 100000000;
+
   localStorage.setItem("playerID", playerID);
+  console.log(localStorage.getItem("playerID").length);
 }
+$(document).ready(function() {
+  initial();
+});
