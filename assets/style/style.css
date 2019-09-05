@@ -4,3 +4,14 @@ body {
   font-family: "Press Start 2P", cursive;
   text-align: center;
 }
+#selectTeam {
+  margin-top: 20%;
+}
+
+.playerJoin {
+  padding: 2%;
+}
+.playerJoin:hover {
+  background-color: white;
+  color: red;
+}
