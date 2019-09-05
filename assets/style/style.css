@@ -3,15 +3,29 @@ body {
   color: white;
   font-family: "Press Start 2P", cursive;
   text-align: center;
+  font-size: 120%;
 }
 #selectTeam {
-  margin-top: 20%;
+  margin-top: 10%;
 }
 
 .playerJoin {
   padding: 2%;
+  font-size: 120%;
 }
 .playerJoin:hover {
   background-color: white;
   color: red;
+}
+img {
+  height: 100%;
+}
+
+@media screen and (max-width: 670px) {
+  body {
+    font-size: 80%;
+  }
+  #selectTeam {
+    margin-top: 20%;
+  }
 }

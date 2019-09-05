@@ -4,25 +4,64 @@ const firebaseConfig = {
   authDomain: "poke-battle-da0e9.firebaseapp.com",
   databaseURL: "https://poke-battle-da0e9.firebaseio.com",
   projectId: "poke-battle-da0e9",
-  storageBucket: "",
+  storageBucket: "poke-battle-da0e9.appspot.com",
   messagingSenderId: "902491672374",
   appId: "1:902491672374:web:fffb6a9f4d92d1de3f2d97"
 };
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
+// runs generateID for new user
 function initial() {
   const playerID = localStorage.getItem("playerID");
   if (typeof playerID !== "string") {
     generateID();
   }
 }
+// assigns a 9 digit number to local
 function generateID() {
   playerID = Math.floor(Math.random() * 900000000) + 100000000;
 
   localStorage.setItem("playerID", playerID);
-  console.log(localStorage.getItem("playerID").length);
 }
 $(document).ready(function() {
   initial();
-});
+  database
+    .ref()
+    .once("value")
+    .then(function(snapshot) {
+      if (snapshot.val().gameState !== "undefined") {
+        console.log(snapshot.val().gameState);
+        const playerJoin = $("<div id=selectTeam></div>");
+        const gen1Banner = $(
+          "<h1 class=playerJoin id=selectGen1>GEN 1 STARTERS</h1>"
+        )
+          .append(`<img src="./assets/images/Bulbasaur.png"></img>`)
+          .append(`<img src="./assets/images/Charmander.png"></img>`)
+          .append(`<img src="./assets/images/Squirtle.png"></img>`);
+        const gen2Banner = $(
+          "<h1 class=playerJoin id=selectGen2>GEN 2 STARTERS</h1>"
+        )
+          .append(`<img src="./assets/images/Chikorita.png"></img>`)
+          .append(`<img src="./assets/images/Cyndaquil.png"></img>`)
+          .append(`<img src="./assets/images/Totodile.png"></img>`);
+
+        playerJoin.append("<h1>SELECT YOUR TEAM</h1>");
+        playerJoin.append(gen1Banner);
+        playerJoin.append(gen2Banner);
+
+        $("#mainContent").append(playerJoin);
+      }
+    });
+  $(document).on("click", ".playerJoin", function(event) {
+    if (event.currentTarget.id === "selectGen1") {
+      database.ref().update({
+        player1ID: localStorage.getItem("playerID")
+      });
+    } else if (event.currentTarget.id === "selectGen2") {
+      database.ref().update({
+        player2ID: localStorage.getItem("playerID")
+      });
+    }
+  });
+}); // closes $(document).ready
