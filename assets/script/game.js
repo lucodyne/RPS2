@@ -127,7 +127,7 @@ $(document).ready(function() {
   database.ref().on("value", function(stateUpdate) {
     if (stateUpdate.val().gameRoom1.gameReset === true) {
       resetGame();
-    } else {
+    } else if (stateUpdate.val().gameRoom1.gameState === "genSelect") {
       if (
         stateUpdate.val().gameRoom1["player1ID"] ===
         localStorage.getItem("playerID")
@@ -147,6 +147,9 @@ $(document).ready(function() {
         stateUpdate.val().gameRoom1.player2Entered === true
       ) {
         console.log("BOTH PLAYERS READY");
+
+        // give short countdown in #prompt,
+        // change gameState to rockPaperScissors
       } else {
         genSelect();
       }
@@ -158,6 +161,9 @@ $(document).ready(function() {
         $("#prompt").text(`YOU ARE PLAYER ${playerNumber}`);
         console.log(`you are player ${playerNumber}!`);
       }
+    } else if (stateUpdate.val().gameRoom1.gameState === "rockPaperScissors") {
+      // change page to rock paper scissors buttons
+      // display scoreboard
     }
   });
 }); // closes $(document).ready
