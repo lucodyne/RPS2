@@ -25,13 +25,33 @@ function generateID() {
   localStorage.setItem("playerID", playerID);
 }
 $(document).ready(function() {
+  database
+    .ref()
+    .once("value")
+    .then(function(snapshot) {
+      let gameRoomCount = snapshot.val().gameRoomCount;
+      // database.ref(`/gameRoom${gameRoomCount}`).set({
+      //   player1Entered: false,
+      //   player1ID: "",
+      //   player1Selected: "none",
+      //   player1Wins: 0,
+      //   player2Entered: false,
+      //   player2ID: "",
+      //   player2Selected: "none",
+      //   player2Wins: 0
+      // });
+      database.ref().update({
+        gameRoomCount
+      });
+    });
+
   initial();
   database
     .ref()
     .once("value")
     .then(function(snapshot) {
       if (snapshot.val().gameState !== "undefined") {
-        console.log(snapshot.val().gameState);
+        // console.log(snapshot.val().gameState);
         const playerJoin = $("<div id=selectTeam></div>");
         const gen1Banner = $(
           "<h1 class=playerJoin id=selectGen1>GEN 1 STARTERS</h1>"
@@ -59,16 +79,16 @@ $(document).ready(function() {
       .once("value")
       .then(function(snapshot) {
         if (event.currentTarget.id === "selectGen1") {
-          if (snapshot.val().player1Entered === false) {
-            database.ref().update({
+          if (snapshot.val().gameRoom1.player1Entered === false) {
+            database.ref("/gameRoom1").update({
               player1ID: localStorage.getItem("playerID"),
               player1Entered: true
             });
           }
         }
         if (event.currentTarget.id === "selectGen2") {
-          if (snapshot.val().player2Entered === false) {
-            database.ref().update({
+          if (snapshot.val().gameRoom1.player2Entered === false) {
+            database.ref("/gameRoom1").update({
               player2ID: localStorage.getItem("playerID"),
               player2Entered: true
             });
@@ -76,8 +96,17 @@ $(document).ready(function() {
         }
       });
   });
-  database.ref().on("value", function() {
-    // ????
-    // ????
+  database.ref().on("value", function(stateUpdate) {
+    if (
+      stateUpdate.val().gameRoom1.player1ID === localStorage.getItem("playerID")
+    ) {
+      $(document).off("click", ".playerJoin");
+    } else if (
+      stateUpdate.val().gameRoom1.player2ID === localStorage.getItem("playerID")
+    ) {
+      $(document).off("click", ".playerJoin");
+    } else {
+      console.log("you are not player 1 or player 2!");
+    }
   });
 }); // closes $(document).ready
