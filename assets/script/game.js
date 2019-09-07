@@ -54,14 +54,30 @@ $(document).ready(function() {
       }
     });
   $(document).on("click", ".playerJoin", function(event) {
-    if (event.currentTarget.id === "selectGen1") {
-      database.ref().update({
-        player1ID: localStorage.getItem("playerID")
+    database
+      .ref()
+      .once("value")
+      .then(function(snapshot) {
+        if (event.currentTarget.id === "selectGen1") {
+          if (snapshot.val().player1Entered === false) {
+            database.ref().update({
+              player1ID: localStorage.getItem("playerID"),
+              player1Entered: true
+            });
+          }
+        }
+        if (event.currentTarget.id === "selectGen2") {
+          if (snapshot.val().player2Entered === false) {
+            database.ref().update({
+              player2ID: localStorage.getItem("playerID"),
+              player2Entered: true
+            });
+          }
+        }
       });
-    } else if (event.currentTarget.id === "selectGen2") {
-      database.ref().update({
-        player2ID: localStorage.getItem("playerID")
-      });
-    }
+  });
+  database.ref().on("value", function() {
+    // ????
+    // ????
   });
 }); // closes $(document).ready
