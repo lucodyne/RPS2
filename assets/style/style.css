@@ -5,6 +5,15 @@ body {
   text-align: center;
   font-size: 120%;
 }
+
+#resetButton {
+  font-size: 30%;
+  background: red;
+  position: fixed;
+  top: 5%;
+  padding: 2%;
+}
+
 #selectTeam {
   margin-top: 10%;
 }
@@ -16,6 +25,7 @@ body {
 .playerJoin:hover {
   background-color: white;
   color: red;
+  cursor: pointer;
 }
 
 img {
