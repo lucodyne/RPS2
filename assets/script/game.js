@@ -33,21 +33,20 @@ function generateID() {
 const instance = {
   playerNumber: 0,
   playerID: localStorage.getItem("playerID"),
-  RPSMenu: "",
   playerJoin: "",
+  RPSMenu: "",
   playerRPSChoice: "none"
 };
 
 // creates the page once instead of on every update
-instance.playerJoin = $("<div id=selectTeam></div>");
-instance.playerJoin.append("<h1 id=prompt>SELECT YOUR TEAM</h1>");
+instance.playerJoin = $("<div></div>");
 for (bannerMaker = 1; bannerMaker < 3; bannerMaker++) {
   const newBanner = $(
     `<h1 class=playerJoin id=selectGen${bannerMaker}>GEN ${bannerMaker} STARTERS</h1>`
   )
-    .append(`<img src="./assets/images/player${bannerMaker}Grass.png"></img>`)
-    .append(`<img src="./assets/images/player${bannerMaker}Fire.png"></img>`)
-    .append(`<img src="./assets/images/player${bannerMaker}Water.png"></img>`);
+    .append(`<img src="./assets/images/Grass${bannerMaker}.png"></img>`)
+    .append(`<img src="./assets/images/Fire${bannerMaker}.png"></img>`)
+    .append(`<img src="./assets/images/Water${bannerMaker}.png"></img>`);
   instance.playerJoin.append(newBanner);
 }
 
@@ -63,9 +62,10 @@ $(document).on("click", "#resetButton", function(event) {
 });
 
 // button triggers reset function for all users
-// bug: clicking reset during countdown will not stop startCountDown functions
+// bug: clicking reset during countdown will not stop timers
 function resetGame() {
   console.log("game reset");
+  $("#timer").empty();
   $(".gray").removeClass("gray");
   instance.playerNumber = 0;
   database.ref(`/gameRoom1`).update({
@@ -112,10 +112,9 @@ function genSelectListeners() {
 
 // phase 1 timer:
 function startTimer() {
-  $("#prompt").text(`BOTH PLAYERS READY!`);
-  $("#prompt").append("<div id=timer></div>");
   let countDownTimer = 4;
   const startCountDown = setInterval(() => {
+    $("#prompt").text(`BOTH PLAYERS READY!`);
     countDownTimer--;
     if (countDownTimer > 0) {
       $("#timer").text(`GAME STARTING IN ${countDownTimer}...`);
@@ -131,7 +130,6 @@ function startTimer() {
 // phase 2 timer
 function roundTimer() {
   $("#prompt").text("CHOOSE A POKEMON!");
-  $("#prompt").append("<div id=timer></div>");
   let RPSTimer = 5;
   $("#timer").text(`TIME REMAINING: ${RPSTimer}`);
   const RPSCountDown = setInterval(() => {
@@ -192,6 +190,7 @@ database.ref().on("value", function(stateUpdate) {
       // phase 2: selecting rock paper or scissors, will alternate between this and the results page until reset
     } else if (stateUpdate.val().gameRoom1.gameState === "rockPaperScissors") {
       // change page to rock paper scissors buttons
+      $();
 
       // will only call roundTimer if not already running:
       if (stateUpdate.val().gameRoom1.roundTimer === false) {
