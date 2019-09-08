@@ -1,3 +1,5 @@
+// $(document).ready(function() {
+
 // Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyB_DmzD9kkCOtswYFQy6RWaP-yN_r5uUnI",
@@ -10,126 +12,137 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
-let playerNumber = "0";
 
 // runs generateID for new user
-function initial() {
+function initialID() {
   const playerID = localStorage.getItem("playerID");
   if (typeof playerID !== "string") {
     generateID();
   }
 }
-// assigns a 9 digit number to local
+initialID();
+
+// assigns a 9 digit number to local, these are split
+// for reassigning an ID in case of duplicates, eventually
 function generateID() {
   playerID = Math.floor(Math.random() * 900000000) + 100000000;
-
   localStorage.setItem("playerID", playerID);
 }
 
-$(document).ready(function() {
-  database
-    .ref()
-    .once("value")
-    .then(function(snapshot) {
-      let gameRoomCount = snapshot.val().gameRoomCount;
-      database.ref().update({
-        gameRoomCount
-      });
-    });
+// game information for browser will be held here instead of everywhere
+const instance = {
+  playerNumber: 0,
+  playerID: localStorage.getItem("playerID"),
+  RPSMenu: "",
+  playerJoin: ""
+};
 
-  initial();
+// creates the page once instead of on every update
+instance.playerJoin = $("<div id=selectTeam></div>");
+instance.playerJoin.append("<h1 id=prompt>SELECT YOUR TEAM</h1>");
+for (bannerMaker = 1; bannerMaker < 3; bannerMaker++) {
+  const newBanner = $(
+    `<h1 class=playerJoin id=selectGen${bannerMaker}>GEN ${bannerMaker} STARTERS</h1>`
+  )
+    .append(`<img src="./assets/images/player${bannerMaker}Grass.png"></img>`)
+    .append(`<img src="./assets/images/player${bannerMaker}Fire.png"></img>`)
+    .append(`<img src="./assets/images/player${bannerMaker}Water.png"></img>`);
+  instance.playerJoin.append(newBanner);
+}
 
-  // reset button
-  $("#header").append("<div id=resetButton>RESET GAME</div>");
-  $(document).on("click", "#resetButton", function(event) {
-    database.ref(`/gameRoom1`).update({
-      gameReset: true
-    });
+// logic for gameRoomCount here, eventually:
+// will probably be (if 1 and 2 entered === true, and ids do not match, roomcount++)
+
+// reset button
+$("#header").append("<div id=resetButton>RESET GAME</div>");
+$(document).on("click", "#resetButton", function(event) {
+  database.ref(`/gameRoom1`).update({
+    gameReset: true
   });
-  // button triggers reset function for all users
-  function resetGame() {
-    console.log("game reset");
-    $(".gray").removeClass("gray");
-    playerNumber = "0";
-    genSelect();
-    database.ref(`/gameRoom1`).update({
-      gameReset: false,
-      gameState: "genSelect",
-      player1Entered: false,
-      player1ID: "",
-      player1Selected: "none",
-      player1Wins: 0,
-      player2Entered: false,
-      player2ID: "",
-      player2Selected: "none",
-      player2Wins: 0
-    });
-  }
-  function genSelect() {
-    $("#prompt").text(`SELECT YOUR TEAM`);
-    $(document).on("click", ".playerJoin", function(event) {
-      database
-        .ref()
-        .once("value")
-        .then(function(snapshot) {
-          if (event.currentTarget.id === "selectGen1") {
-            if (snapshot.val().gameRoom1.player1Entered === false) {
-              database.ref("/gameRoom1").update({
-                player1ID: localStorage.getItem("playerID"),
-                player1Entered: true
-              });
-            }
+});
+
+// button triggers reset function for all users
+// bug: clicking reset during countdown will not stop startCountDown functions
+function resetGame() {
+  console.log("game reset");
+  $(".gray").removeClass("gray");
+  instance.playerNumber = 0;
+  database.ref(`/gameRoom1`).update({
+    gameReset: false,
+    gameState: "genSelect",
+    player1Entered: false,
+    player1ID: "",
+    player1Selected: "none",
+    player1Wins: 0,
+    player2Entered: false,
+    player2ID: "",
+    player2Selected: "none",
+    player2Wins: 0
+  });
+}
+
+// adds listener to player select divs
+function genSelectListeners() {
+  $("#prompt").text(`SELECT YOUR TEAM`);
+  $(document).on("click", ".playerJoin", function(event) {
+    database
+      .ref()
+      .once("value")
+      .then(function(snapshot) {
+        if (event.currentTarget.id === "selectGen1") {
+          if (snapshot.val().gameRoom1.player1Entered === false) {
+            database.ref("/gameRoom1").update({
+              player1ID: localStorage.getItem("playerID"),
+              player1Entered: true
+            });
           }
-          if (event.currentTarget.id === "selectGen2") {
-            if (snapshot.val().gameRoom1.player2Entered === false) {
-              database.ref("/gameRoom1").update({
-                player2ID: localStorage.getItem("playerID"),
-                player2Entered: true
-              });
-            }
+        }
+        if (event.currentTarget.id === "selectGen2") {
+          if (snapshot.val().gameRoom1.player2Entered === false) {
+            database.ref("/gameRoom1").update({
+              player2ID: localStorage.getItem("playerID"),
+              player2Entered: true
+            });
           }
-        });
-    });
+        }
+      });
+  });
+}
+
+database.ref().on("value", function(stateUpdate) {
+  // prioritize reseting game
+  if (stateUpdate.val().gameRoom1.gameReset === true) {
+    resetGame();
   }
-  database.ref().on("value", function(stateUpdate) {
-    if (stateUpdate.val().gameRoom1.gameReset === true) {
-      resetGame();
-    } else if (stateUpdate.val().gameRoom1.gameState === "genSelect") {
-      const playerJoin = $("<div id=selectTeam></div>");
-      playerJoin.append("<h1 id=prompt>SELECT YOUR TEAM</h1>");
-      for (bannerMaker = 1; bannerMaker < 3; bannerMaker++) {
-        const newBanner = $(
-          `<h1 class=playerJoin id=selectGen${bannerMaker}>GEN ${bannerMaker} STARTERS</h1>`
-        )
-          .append(
-            `<img src="./assets/images/player${bannerMaker}Grass.png"></img>`
-          )
-          .append(
-            `<img src="./assets/images/player${bannerMaker}Fire.png"></img>`
-          )
-          .append(
-            `<img src="./assets/images/player${bannerMaker}Water.png"></img>`
-          );
-        playerJoin.append(newBanner);
-        $("#mainContent").html(playerJoin);
-      }
-      if (
-        stateUpdate.val().gameRoom1["player1ID"] ===
-        localStorage.getItem("playerID")
-      ) {
-        playerNumber = "1";
-      } else if (
-        stateUpdate.val().gameRoom1["player2ID"] ===
-        localStorage.getItem("playerID")
-      ) {
-        playerNumber = "2";
-      }
+  // else statement after reset will wrap everything
+  else {
+    // will check if user is already player 1 or 2, assigns to instance
+    if (stateUpdate.val().gameRoom1["player1ID"] === instance.playerID) {
+      instance.playerNumber = 1;
+    } else if (stateUpdate.val().gameRoom1["player2ID"] === instance.playerID) {
+      instance.playerNumber = 2;
+    }
+
+    // phase 1: selecting a team
+    if (stateUpdate.val().gameRoom1.gameState === "genSelect") {
+      $("#mainContent").html(instance.playerJoin);
 
       if (stateUpdate.val().gameRoom1["player1Entered"] === true) {
         $("#selectGen1").addClass("gray");
       }
       if (stateUpdate.val().gameRoom1["player2Entered"] === true) {
         $("#selectGen2").addClass("gray");
+      }
+
+      // if user is assigned a player already, don't load listeners
+      if (
+        stateUpdate.val().gameRoom1[`player${instance.playerNumber}ID`] ===
+        instance.playerID
+      ) {
+        $(document).off("click", ".playerJoin");
+        $("#prompt").text(`YOU ARE PLAYER ${instance.playerNumber}`);
+      } else {
+        genSelectListeners();
       }
 
       if (
@@ -143,31 +156,24 @@ $(document).ready(function() {
           countDownTimer--;
           $("#prompt").text(`BOTH PLAYERS READY!`);
           $("#prompt").append("<div id=timer></div>");
-          $("#timer").text(`GAME STARTING IN ${countDownTimer}...`);
-          if (countDownTimer < 1) {
+          if (countDownTimer > 0) {
+            $("#timer").text(`GAME STARTING IN ${countDownTimer}...`);
+          } else {
             clearInterval(startCountDown);
             database.ref("/gameRoom1").update({
               gameState: "rockPaperScissors"
             });
           }
-          console.log(`timer: ${countDownTimer}`);
         }, 1000);
-      } else {
-        genSelect();
       }
-      if (
-        stateUpdate.val().gameRoom1[`player${playerNumber}ID`] ===
-        localStorage.getItem("playerID")
-      ) {
-        $(document).off("click", ".playerJoin");
-        $("#prompt").text(`YOU ARE PLAYER ${playerNumber}`);
-      }
+      // phase 2: selecting rock paper or scissors, will alternate between this and the results page
     } else if (stateUpdate.val().gameRoom1.gameState === "rockPaperScissors") {
       // change page to rock paper scissors buttons
-      // display scoreboard
+      // change gamestate to results/scoreboard
       console.log("ROCK PAPER SCISSORS");
 
       $("#prompt").text("CHOOSE A POKEMON!");
     }
-  }); // closes database.ref().on("value"
-}); // closes $(document).ready
+  }
+}); // closes database.ref().on("value"
+// }); // closes $(document).ready
