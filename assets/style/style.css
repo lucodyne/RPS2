@@ -4,6 +4,7 @@ body {
   font-family: "Press Start 2P", cursive;
   text-align: center;
   font-size: 120%;
+  min-height: 565px;
 }
 
 #resetButton {
@@ -32,12 +33,37 @@ body {
   cursor: pointer;
 }
 
+#RPSMenu {
+  position: fixed;
+  bottom: 25%;
+  left: 50vw;
+  margin-left: -180px;
+}
+
+.iChooseYou {
+  height: 120px;
+  opacity: 0.4;
+}
+.iChooseYou:hover {
+  opacity: 1;
+}
+.choseYou {
+  opacity: 1;
+}
+
 @media screen and (max-width: 670px) {
   body {
     font-size: 80%;
   }
   #selectTeam {
     margin-top: 20%;
+  }
+  #RPSMenu {
+    margin-left: -120px;
+  }
+  .iChooseYou {
+    width: 80px;
+    height: auto;
   }
 }
 
