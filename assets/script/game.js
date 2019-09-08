@@ -34,7 +34,8 @@ const instance = {
   playerNumber: 0,
   playerID: localStorage.getItem("playerID"),
   RPSMenu: "",
-  playerJoin: ""
+  playerJoin: "",
+  playerRPSChoice: "none"
 };
 
 // creates the page once instead of on every update
@@ -109,6 +110,43 @@ function genSelectListeners() {
   });
 }
 
+// phase 1 timer:
+function startTimer() {
+  $("#prompt").text(`BOTH PLAYERS READY!`);
+  $("#prompt").append("<div id=timer></div>");
+  let countDownTimer = 4;
+  const startCountDown = setInterval(() => {
+    countDownTimer--;
+    if (countDownTimer > 0) {
+      $("#timer").text(`GAME STARTING IN ${countDownTimer}...`);
+    } else {
+      clearInterval(startCountDown);
+      database.ref("/gameRoom1").update({
+        gameState: "rockPaperScissors"
+      });
+    }
+  }, 1000);
+}
+
+// phase 2 timer
+function roundTimer() {
+  $("#prompt").text("CHOOSE A POKEMON!");
+  $("#prompt").append("<div id=timer></div>");
+  let RPSTimer = 5;
+  $("#timer").text(`TIME REMAINING: ${RPSTimer}`);
+  const RPSCountDown = setInterval(() => {
+    RPSTimer--;
+    if (RPSTimer > 0) {
+      $("#timer").text(`TIME REMAINING: ${RPSTimer}`);
+    } else {
+      clearInterval(RPSCountDown);
+      database.ref("/gameRoom1").update({
+        gameState: "results"
+      });
+    }
+  }, 1000);
+}
+
 database.ref().on("value", function(stateUpdate) {
   // prioritize reseting game
   if (stateUpdate.val().gameRoom1.gameReset === true) {
@@ -149,30 +187,16 @@ database.ref().on("value", function(stateUpdate) {
         stateUpdate.val().gameRoom1.player1Entered &&
         stateUpdate.val().gameRoom1.player2Entered === true
       ) {
-        // gives short countdown in #prompt,
-        // change gameState to rockPaperScissors
-        let countDownTimer = 4;
-        const startCountDown = setInterval(() => {
-          countDownTimer--;
-          $("#prompt").text(`BOTH PLAYERS READY!`);
-          $("#prompt").append("<div id=timer></div>");
-          if (countDownTimer > 0) {
-            $("#timer").text(`GAME STARTING IN ${countDownTimer}...`);
-          } else {
-            clearInterval(startCountDown);
-            database.ref("/gameRoom1").update({
-              gameState: "rockPaperScissors"
-            });
-          }
-        }, 1000);
+        startTimer();
       }
-      // phase 2: selecting rock paper or scissors, will alternate between this and the results page
+      // phase 2: selecting rock paper or scissors, will alternate between this and the results page until reset
     } else if (stateUpdate.val().gameRoom1.gameState === "rockPaperScissors") {
       // change page to rock paper scissors buttons
-      // change gamestate to results/scoreboard
-      console.log("ROCK PAPER SCISSORS");
 
-      $("#prompt").text("CHOOSE A POKEMON!");
+      // will only call roundTimer if not already running:
+      if (stateUpdate.val().gameRoom1.roundTimer === false) {
+        roundTimer();
+      }
     }
   }
 }); // closes database.ref().on("value"
