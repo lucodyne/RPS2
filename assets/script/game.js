@@ -174,9 +174,10 @@ $(document).ready(function() {
         $("#prompt").text(`YOU ARE PLAYER ${playerNumber}`);
         console.log(`you are player ${playerNumber}!`);
       }
-      // } else if (stateUpdate.val().gameRoom1.gameState === "rockPaperScissors") {
+    } else if (stateUpdate.val().gameRoom1.gameState === "rockPaperScissors") {
       // change page to rock paper scissors buttons
       // display scoreboard
+      console.log("ROCK PAPER SCISSORS");
     }
   });
 }); // closes $(document).ready
