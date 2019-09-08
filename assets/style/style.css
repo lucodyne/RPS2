@@ -18,6 +18,10 @@ body {
   margin-top: 10%;
 }
 
+#prompt {
+  font-size: 100%;
+}
+
 .playerJoin {
   padding: 2%;
   font-size: 120%;
@@ -26,10 +30,6 @@ body {
   background-color: white;
   color: red;
   cursor: pointer;
-}
-
-img {
-  height: 100%;
 }
 
 @media screen and (max-width: 670px) {

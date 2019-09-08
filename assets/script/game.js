@@ -37,33 +37,6 @@ $(document).ready(function() {
     });
 
   initial();
-  database
-    .ref()
-    .once("value")
-    .then(function(snapshot) {
-      if (snapshot.val().gameState !== "undefined") {
-        // console.log(snapshot.val().gameState);
-        const playerJoin = $("<div id=selectTeam></div>");
-        const gen1Banner = $(
-          "<h1 class=playerJoin id=selectGen1>GEN 1 STARTERS</h1>"
-        )
-          .append(`<img src="./assets/images/Bulbasaur.png"></img>`)
-          .append(`<img src="./assets/images/Charmander.png"></img>`)
-          .append(`<img src="./assets/images/Squirtle.png"></img>`);
-        const gen2Banner = $(
-          "<h1 class=playerJoin id=selectGen2>GEN 2 STARTERS</h1>"
-        )
-          .append(`<img src="./assets/images/Chikorita.png"></img>`)
-          .append(`<img src="./assets/images/Cyndaquil.png"></img>`)
-          .append(`<img src="./assets/images/Totodile.png"></img>`);
-
-        playerJoin.append("<h1 id=prompt>SELECT YOUR TEAM</h1>");
-        playerJoin.append(gen1Banner);
-        playerJoin.append(gen2Banner);
-
-        $("#mainContent").append(playerJoin);
-      }
-    });
 
   // reset button
   $("#header").append("<div id=resetButton>RESET GAME</div>");
@@ -121,6 +94,25 @@ $(document).ready(function() {
     if (stateUpdate.val().gameRoom1.gameReset === true) {
       resetGame();
     } else if (stateUpdate.val().gameRoom1.gameState === "genSelect") {
+      const playerJoin = $("<div id=selectTeam></div>");
+      playerJoin.append("<h1 id=prompt>SELECT YOUR TEAM</h1>");
+      for (bannerMaker = 1; bannerMaker < 3; bannerMaker++) {
+        const newBanner = $(
+          `<h1 class=playerJoin id=selectGen${bannerMaker}>GEN ${bannerMaker} STARTERS</h1>`
+        )
+          .append(
+            `<img src="./assets/images/player${bannerMaker}Grass.png"></img>`
+          )
+          .append(
+            `<img src="./assets/images/player${bannerMaker}Fire.png"></img>`
+          )
+          .append(
+            `<img src="./assets/images/player${bannerMaker}Water.png"></img>`
+          );
+        playerJoin.append(newBanner);
+
+        $("#mainContent").html(playerJoin);
+      }
       if (
         stateUpdate.val().gameRoom1["player1ID"] ===
         localStorage.getItem("playerID")
@@ -148,8 +140,10 @@ $(document).ready(function() {
         stateUpdate.val().gameRoom1.player2Entered === true
       ) {
         console.log("BOTH PLAYERS READY");
+        // gives short countdown in #prompt,
+        // change gameState to rockPaperScissors
         let countDownTimer = 4;
-        const countDown = setInterval(() => {
+        const startCountDown = setInterval(() => {
           countDownTimer--;
           $("#prompt").text(
             `BOTH PLAYERS READY! GAME STARTING IN ${countDownTimer}...`
@@ -158,11 +152,9 @@ $(document).ready(function() {
             database.ref("/gameRoom1").update({
               gameState: "rockPaperScissors"
             });
-            clearInterval(countDown);
+            clearInterval(startCountDown);
           }
         }, 1000);
-        // give short countdown in #prompt,
-        // change gameState to rockPaperScissors
       } else {
         genSelect();
       }
