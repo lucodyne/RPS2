@@ -77,13 +77,14 @@ $(document).ready(function() {
 
   $("#header").append("<div id=resetButton>RESET GAME</div>");
   $(document).on("click", "#resetButton", function(event) {
-    console.log("game reset");
     database.ref(`/gameRoom1`).update({
       gameReset: true
     });
   });
 
   function resetGame() {
+    console.log("game reset");
+    $(".gray").removeClass("gray");
     playerNumber = "0";
     genSelect();
     database.ref(`/gameRoom1`).update({
@@ -141,6 +142,14 @@ $(document).ready(function() {
       } else {
         console.log("you are not player 1 or player 2!");
       }
+      if (stateUpdate.val().gameRoom1["player1Entered"] === true) {
+        console.log("player1 taken!");
+        $("#selectGen1").addClass("gray");
+      }
+      if (stateUpdate.val().gameRoom1["player2Entered"] === true) {
+        console.log("player2 taken!");
+        $("#selectGen2").addClass("gray");
+      }
 
       if (
         stateUpdate.val().gameRoom1.player1Entered &&
@@ -161,7 +170,7 @@ $(document).ready(function() {
         $("#prompt").text(`YOU ARE PLAYER ${playerNumber}`);
         console.log(`you are player ${playerNumber}!`);
       }
-    } else if (stateUpdate.val().gameRoom1.gameState === "rockPaperScissors") {
+      // } else if (stateUpdate.val().gameRoom1.gameState === "rockPaperScissors") {
       // change page to rock paper scissors buttons
       // display scoreboard
     }
