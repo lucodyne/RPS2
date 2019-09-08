@@ -31,16 +31,6 @@ $(document).ready(function() {
     .once("value")
     .then(function(snapshot) {
       let gameRoomCount = snapshot.val().gameRoomCount;
-      // database.ref(`/gameRoom${gameRoomCount}`).set({
-      //   player1Entered: false,
-      //   player1ID: "",
-      //   player1Selected: "none",
-      //   player1Wins: 0,
-      //   player2Entered: false,
-      //   player2ID: "",
-      //   player2Selected: "none",
-      //   player2Wins: 0
-      // });
       database.ref().update({
         gameRoomCount
       });
@@ -75,13 +65,14 @@ $(document).ready(function() {
       }
     });
 
+  // reset button
   $("#header").append("<div id=resetButton>RESET GAME</div>");
   $(document).on("click", "#resetButton", function(event) {
     database.ref(`/gameRoom1`).update({
       gameReset: true
     });
   });
-
+  // button triggers reset function for all users
   function resetGame() {
     console.log("game reset");
     $(".gray").removeClass("gray");
@@ -89,6 +80,7 @@ $(document).ready(function() {
     genSelect();
     database.ref(`/gameRoom1`).update({
       gameReset: false,
+      gameState: "genSelect",
       player1Entered: false,
       player1ID: "",
       player1Selected: "none",
@@ -156,7 +148,19 @@ $(document).ready(function() {
         stateUpdate.val().gameRoom1.player2Entered === true
       ) {
         console.log("BOTH PLAYERS READY");
-
+        let countDownTimer = 4;
+        const countDown = setInterval(() => {
+          countDownTimer--;
+          $("#prompt").text(
+            `BOTH PLAYERS READY! GAME STARTING IN ${countDownTimer}...`
+          );
+          if (countDownTimer === 0) {
+            database.ref("/gameRoom1").update({
+              gameState: "rockPaperScissors"
+            });
+            clearInterval(countDown);
+          }
+        }, 1000);
         // give short countdown in #prompt,
         // change gameState to rockPaperScissors
       } else {
