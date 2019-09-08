@@ -25,6 +25,7 @@ function generateID() {
 
   localStorage.setItem("playerID", playerID);
 }
+
 $(document).ready(function() {
   database
     .ref()
@@ -110,7 +111,6 @@ $(document).ready(function() {
             `<img src="./assets/images/player${bannerMaker}Water.png"></img>`
           );
         playerJoin.append(newBanner);
-
         $("#mainContent").html(playerJoin);
       }
       if (
@@ -123,15 +123,12 @@ $(document).ready(function() {
         localStorage.getItem("playerID")
       ) {
         playerNumber = "2";
-      } else {
-        console.log("you are not player 1 or player 2!");
       }
+
       if (stateUpdate.val().gameRoom1["player1Entered"] === true) {
-        console.log("player1 taken!");
         $("#selectGen1").addClass("gray");
       }
       if (stateUpdate.val().gameRoom1["player2Entered"] === true) {
-        console.log("player2 taken!");
         $("#selectGen2").addClass("gray");
       }
 
@@ -139,21 +136,21 @@ $(document).ready(function() {
         stateUpdate.val().gameRoom1.player1Entered &&
         stateUpdate.val().gameRoom1.player2Entered === true
       ) {
-        console.log("BOTH PLAYERS READY");
         // gives short countdown in #prompt,
         // change gameState to rockPaperScissors
         let countDownTimer = 4;
         const startCountDown = setInterval(() => {
           countDownTimer--;
-          $("#prompt").text(
-            `BOTH PLAYERS READY! GAME STARTING IN ${countDownTimer}...`
-          );
-          if (countDownTimer === 0) {
+          $("#prompt").text(`BOTH PLAYERS READY!`);
+          $("#prompt").append("<div id=timer></div>");
+          $("#timer").text(`GAME STARTING IN ${countDownTimer}...`);
+          if (countDownTimer < 1) {
+            clearInterval(startCountDown);
             database.ref("/gameRoom1").update({
               gameState: "rockPaperScissors"
             });
-            clearInterval(startCountDown);
           }
+          console.log(`timer: ${countDownTimer}`);
         }, 1000);
       } else {
         genSelect();
@@ -164,13 +161,13 @@ $(document).ready(function() {
       ) {
         $(document).off("click", ".playerJoin");
         $("#prompt").text(`YOU ARE PLAYER ${playerNumber}`);
-        console.log(`you are player ${playerNumber}!`);
       }
     } else if (stateUpdate.val().gameRoom1.gameState === "rockPaperScissors") {
       // change page to rock paper scissors buttons
       // display scoreboard
       console.log("ROCK PAPER SCISSORS");
+
       $("#prompt").text("CHOOSE A POKEMON!");
     }
-  });
+  }); // closes database.ref().on("value"
 }); // closes $(document).ready
