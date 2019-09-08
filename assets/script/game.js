@@ -170,6 +170,7 @@ $(document).ready(function() {
       // change page to rock paper scissors buttons
       // display scoreboard
       console.log("ROCK PAPER SCISSORS");
+      $("#prompt").text("CHOOSE A POKEMON!");
     }
   });
 }); // closes $(document).ready
