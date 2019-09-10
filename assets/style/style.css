@@ -51,6 +51,10 @@ body {
   opacity: 1;
 }
 
+.gray {
+  color: gray;
+}
+
 @media screen and (max-width: 670px) {
   body {
     font-size: 80%;
@@ -67,6 +71,11 @@ body {
   }
 }
 
-.gray {
-  color: gray;
+#ally {
+  width: 35vw;
+  height: auto;
+}
+#enemy {
+  width: 25vw;
+  height: auto;
 }
