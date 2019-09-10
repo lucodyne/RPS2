@@ -120,6 +120,7 @@ $(document).ready(function() {
   }
 
   database.ref().on("value", function(stateUpdate) {
+    console.log("value update");
     // prioritize reseting game
     if (stateUpdate.val().gameRoom1.gameReset === true) {
       resetGame();
@@ -234,6 +235,7 @@ $(document).ready(function() {
           // phase 2 timer
           database.ref("gameRoom1").update({
             roundTimer: true,
+            roundReset: true,
             player1Selected: "none",
             player2Selected: "none"
           });
@@ -248,7 +250,6 @@ $(document).ready(function() {
             } else {
               clearInterval(RPSCountDown);
               database.ref("/gameRoom1").update({
-                roundReset: true,
                 roundTimer: false,
                 gameState: "results"
               });
@@ -257,7 +258,6 @@ $(document).ready(function() {
         }
         // phase 3: displays choices, round winner, score board, and timer to return to phase 2
       } else if (stateUpdate.val().gameRoom1.gameState === "results") {
-        // actual rock paper scissors logic here
         $("#prompt").empty();
         $("#timer").empty();
         let {
@@ -296,6 +296,7 @@ $(document).ready(function() {
             $("#prompt").text("PLAYER 1 WINS");
             if (instance.playerNumber === 1) {
               if (roundReset === true) {
+                console.log("player1Wins++");
                 player1Wins++;
                 database.ref("/gameRoom1").update({
                   roundReset: false,
@@ -308,6 +309,7 @@ $(document).ready(function() {
             $("#prompt").text("PLAYER 2 WINS");
             if (instance.playerNumber === 2) {
               if (roundReset === true) {
+                console.log("player1Wins++");
                 player2Wins++;
                 database.ref("/gameRoom1").update({
                   roundReset: false,
@@ -316,35 +318,30 @@ $(document).ready(function() {
               }
             }
           }
+
           if (player1Selected === "fire") {
             if (player2Selected === "water") {
-              console.log("player2 win!");
               win2();
             } else {
-              console.log("player1 win!");
               win1();
             }
           }
           if (player1Selected === "water") {
             if (player2Selected === "grass") {
-              console.log("player2 win!");
               win2();
             } else {
-              console.log("player1 win!");
               win1();
             }
           }
           if (player1Selected === "grass") {
             if (player2Selected === "fire") {
-              console.log("player2 win!");
               win2();
             } else {
-              console.log("player1 win!");
               win1();
             }
           }
-        }
-      }
+        } // closes else after RPS tie logic
+      } // closes gamestate === results condition
     } // closes if reset else condition
   }); // closes database.ref().on("value"
 }); // closes $(document).ready
