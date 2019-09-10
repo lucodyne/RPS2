@@ -7,6 +7,10 @@ body {
   min-height: 565px;
 }
 
+::selection {
+  background: transparent;
+}
+
 #resetButton {
   font-size: 30%;
   background: red;
