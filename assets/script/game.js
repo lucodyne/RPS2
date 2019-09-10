@@ -232,31 +232,28 @@ $(document).ready(function() {
         // will only call roundTimer if not already running:
         if (stateUpdate.val().gameRoom1.roundTimer === false) {
           // phase 2 timer
-          function roundTimer() {
-            database.ref("gameRoom1").update({
-              roundTimer: true,
-              player1Selected: "none",
-              player2Selected: "none"
-            });
+          database.ref("gameRoom1").update({
+            roundTimer: true,
+            player1Selected: "none",
+            player2Selected: "none"
+          });
+          $("#prompt").text("CHOOSE A POKEMON!");
+          let RPSTimer = 5;
+          $("#timer").text(`TIME REMAINING: ${RPSTimer}`);
+          const RPSCountDown = setInterval(() => {
             $("#prompt").text("CHOOSE A POKEMON!");
-            let RPSTimer = 5;
-            $("#timer").text(`TIME REMAINING: ${RPSTimer}`);
-            const RPSCountDown = setInterval(() => {
-              $("#prompt").text("CHOOSE A POKEMON!");
-              RPSTimer--;
-              if (RPSTimer > 0) {
-                $("#timer").text(`TIME REMAINING: ${RPSTimer}`);
-              } else {
-                clearInterval(RPSCountDown);
-                database.ref("/gameRoom1").update({
-                  roundReset: true,
-                  roundTimer: false,
-                  gameState: "results"
-                });
-              }
-            }, 1000);
-          }
-          roundTimer();
+            RPSTimer--;
+            if (RPSTimer > 0) {
+              $("#timer").text(`TIME REMAINING: ${RPSTimer}`);
+            } else {
+              clearInterval(RPSCountDown);
+              database.ref("/gameRoom1").update({
+                roundReset: true,
+                roundTimer: false,
+                gameState: "results"
+              });
+            }
+          }, 1000);
         }
         // phase 3: displays choices, round winner, score board, and timer to return to phase 2
       } else if (stateUpdate.val().gameRoom1.gameState === "results") {
@@ -271,8 +268,9 @@ $(document).ready(function() {
           roundReset
         } = stateUpdate.val().gameRoom1;
         if (instance.playerNumber === 1) {
-          $("#mainContent")
-            .html(
+          $("#mainContent").html("<div id=combatPage></div>");
+          $("#combatPage")
+            .append(
               `<img id=ally src="./assets/images/1${player1Selected}Back.png">`
             )
             .append(
@@ -280,8 +278,9 @@ $(document).ready(function() {
             );
         }
         if (instance.playerNumber === 2) {
-          $("#mainContent")
-            .html(
+          $("#mainContent").html("<div id=combatPage></div>");
+          $("#combatPage")
+            .append(
               `<img id=ally src="./assets/images/2${player2Selected}Back.png">`
             )
             .append(
@@ -289,28 +288,32 @@ $(document).ready(function() {
             );
         }
         if (player1Selected === player2Selected) {
-          console.log("tie!");
+          $("#prompt").text("TIE");
         } else {
+          // checks roundReset to prevent refreshing from double incrementing
+          // only winner will increment, also to prevent doubles
           function win1() {
-            player1Wins++;
-            console.log("p1 wins: " + player1Wins);
             $("#prompt").text("PLAYER 1 WINS");
-            if (roundReset === true) {
-              database.ref("/gameRoom1").update({
-                player1Wins: player1Wins,
-                roundReset: false
-              });
+            if (instance.playerNumber === 1) {
+              if (roundReset === true) {
+                player1Wins++;
+                database.ref("/gameRoom1").update({
+                  roundReset: false,
+                  player1Wins: player1Wins
+                });
+              }
             }
           }
           function win2() {
-            player2Wins++;
-            console.log("p2 wins: " + player2Wins);
             $("#prompt").text("PLAYER 2 WINS");
-            if (roundReset === true) {
-              database.ref("/gameRoom1").update({
-                player2Wins: player2Wins,
-                roundReset: false
-              });
+            if (instance.playerNumber === 2) {
+              if (roundReset === true) {
+                player2Wins++;
+                database.ref("/gameRoom1").update({
+                  roundReset: false,
+                  player2Wins: player2Wins
+                });
+              }
             }
           }
           if (player1Selected === "fire") {
