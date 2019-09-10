@@ -11,8 +11,8 @@ body {
   font-size: 30%;
   background: red;
   position: fixed;
-  top: 5%;
-  padding: 2%;
+  top: 10%;
+  padding: 10px;
 }
 
 #selectTeam {
@@ -70,12 +70,19 @@ body {
     height: auto;
   }
 }
-
+#combatPage {
+  position: absolute;
+  width: 100%;
+}
 #ally {
-  width: 35vw;
+  position: relative;
+  top: 20vh;
+  width: 200px;
   height: auto;
 }
 #enemy {
-  width: 25vw;
+  position: relative;
+
+  width: 180px;
   height: auto;
 }
