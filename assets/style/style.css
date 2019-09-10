@@ -11,8 +11,14 @@ body {
   font-size: 30%;
   background: red;
   position: fixed;
-  top: 10%;
-  padding: 10px;
+  bottom: 5px;
+  margin-left: -15px;
+  left: 50vw;
+  padding: 15px;
+  z-index: 1;
+}
+#resetButton:hover {
+  cursor: pointer;
 }
 
 #selectTeam {
