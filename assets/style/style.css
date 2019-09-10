@@ -51,6 +51,7 @@ body {
   opacity: 0.4;
 }
 .iChooseYou:hover {
+  cursor: pointer;
   opacity: 1;
 }
 .choseYou {
