@@ -93,7 +93,19 @@ body {
 }
 #enemy {
   position: relative;
-
   width: 180px;
   height: auto;
+}
+#scoreBoard {
+  position: relative;
+  left: -50px;
+  bottom: -50px;
+  max-width: 300px;
+}
+#goAgain {
+  line-height: 180%;
+  cursor: pointer;
+}
+#goAgain:hover {
+  color: red;
 }
