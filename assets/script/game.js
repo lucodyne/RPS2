@@ -84,7 +84,8 @@ $(document).ready(function() {
       player2ID: "",
       player2Selected: "none",
       player2Wins: 0,
-      roundReset: false
+      roundReset: false,
+      roundTimer: false
     });
     $("#timer").empty();
     $(".gray").removeClass("gray");
@@ -177,7 +178,8 @@ $(document).ready(function() {
             let countDownTimer = 4;
             const startCountDown = setInterval(() => {
               countDownTimer--;
-              if ((countDownTimer = 0)) {
+              console.log(countDownTimer);
+              if (countDownTimer > 0) {
                 $("#prompt").text(`BOTH PLAYERS READY!`);
                 $("#timer").text(`GAME STARTING IN ${countDownTimer}...`);
               } else {
@@ -263,7 +265,6 @@ $(document).ready(function() {
           let RPSTimer = 5;
           $("#timer").text(`TIME REMAINING: ${RPSTimer}`);
           const RPSCountDown = setInterval(() => {
-            $("#prompt").text("CHOOSE A POKEMON!");
             RPSTimer--;
             if (RPSTimer > 0) {
               $("#timer").text(`TIME REMAINING: ${RPSTimer}`);
@@ -279,42 +280,19 @@ $(document).ready(function() {
         // phase 3: displays choices, round winner, score board, and timer to return to phase 2
       } else if (stateUpdate.val().gameRoom1.gameState === "results") {
         // chooses randomly if no user input
-        if (instance.playerNumber === 1) {
-          if (stateUpdate.val().gameRoom1.player1Selected === "none") {
-            const RNG = Math.floor(Math.random() * 3 + 1);
-            if (RNG === 1) {
-              database.ref(`/gameRoom1`).update({
-                player1Selected: "grass"
-              });
-            } else if (RNG === 2) {
-              database.ref(`/gameRoom1`).update({
-                player1Selected: "fire"
-              });
-            } else if (RNG === 3) {
-              database.ref(`/gameRoom1`).update({
-                player1Selected: "water"
-              });
-            }
-          }
+        if (
+          stateUpdate.val().gameRoom1[
+            `player${instance.playerNumber}Selected`
+          ] === "none"
+        ) {
+          const autoChoices = ["grass", "fire", "water"];
+          const RNG = Math.floor(Math.random() * 3);
+          database.ref(`/gameRoom1`).update({
+            [`player${instance.playerNumber}Selected`]: autoChoices[RNG]
+          });
         }
-        if (instance.playerNumber === 2) {
-          if (stateUpdate.val().gameRoom1.player2Selected === "none") {
-            const RNG = Math.floor(Math.random() * 3 + 1);
-            if (RNG === 1) {
-              database.ref(`/gameRoom1`).update({
-                player2Selected: "grass"
-              });
-            } else if (RNG === 2) {
-              database.ref(`/gameRoom1`).update({
-                player2Selected: "fire"
-              });
-            } else if (RNG === 3) {
-              database.ref(`/gameRoom1`).update({
-                player2Selected: "water"
-              });
-            }
-          }
-        }
+
+        // ends autoSelect logic
         $("#timer").empty();
         let {
           player1Selected,
