@@ -1,3 +1,4 @@
+// REVIEW: Many of these comments are not necessary your code is descriptive enough
 $(document).ready(function() {
   // Firebase
   const firebaseConfig = {
@@ -15,7 +16,7 @@ $(document).ready(function() {
   // runs generateID for new user
   function initialID() {
     const playerID = localStorage.getItem("playerID");
-    if (typeof playerID !== "string") {
+    if (typeof playerID !== "string") { // REVIEW: I would do this in one line
       generateID();
     }
   }
@@ -23,22 +24,23 @@ $(document).ready(function() {
 
   // assigns a 9 digit number to local, these are split
   // for reassigning an ID in case of duplicates, eventually
-  function generateID() {
+  function generateID() { // REVIEW: This function should be declared before it's called
+                          // REVIEW: This is convention and not necessary, but easier to reason about
     playerID = Math.floor(Math.random() * 900000000) + 100000000;
     localStorage.setItem("playerID", playerID);
   }
 
   // game information for browser will be held here instead of everywhere
   const instance = {
-    playerNumber: 0,
+    playerNumber: 0, // REVIEW: on first pass it's not clear how this is different from the next line
     playerID: localStorage.getItem("playerID"),
-    playerJoin: "",
-    RPSMenu: ""
+    playerJoin: "", // REVIEW: null is typically used for affirmatively nothing
+    RPSMenu: "" // REVIEW: null is typically used for affirmatively nothing
   };
 
   // creates page 1
-  instance.playerJoin = $("<div></div>");
-  for (bannerMaker = 1; bannerMaker < 3; bannerMaker++) {
+  instance.playerJoin = $("<div></div>"); // REVIEW: this should be done in the object above
+  for (bannerMaker = 1; bannerMaker < 3; bannerMaker++) { // REVIEW: this may be clearer with <= 2
     const newBanner = $(
       `<h1 class=playerJoin id=selectGen${bannerMaker}>GEN ${bannerMaker} STARTERS</h1>`
     )
@@ -52,16 +54,16 @@ $(document).ready(function() {
   // will probably be (if 1 and 2 entered === true, and ids do not match, roomcount++)
 
   // reset button
-  $("#header").append("<div id=resetButton>RESET GAME</div>");
+  $("#header").append("<div id=resetButton>RESET GAME</div>"); // REVIEW: this is inside an h1 tag and I don't think that's right
   $(document).on("click", "#resetButton", function() {
     // only reset if a timer is not running by checking database first
     database
-      .ref()
-      .once("value")
-      .then(function(resetSnapshot) {
+      .ref() // REVIEW: .ref('/gameRoom1') could be used here
+      .once("value") // REVIEW: There's a potential bug here because nothing has been set in the DB at this point
+      .then(function(resetSnapshot) { // REVIEW: I prefer arrow functions, especially in chains like this
         const timer = resetSnapshot.val().gameRoom1.roundTimer;
         if (timer === false) {
-          database.ref(`/gameRoom1`).update({
+          database.ref(`/gameRoom1`).update({ // REVIEW: I think if we save off the ref above we can reuse it here
             gameReset: true
           });
         }
@@ -70,7 +72,7 @@ $(document).ready(function() {
 
   // button triggers reset function for all users
   // bug: clicking reset during countdown will not stop timers
-  function resetGame() {
+  function resetGame() { // REVIEW: This could be used to "set" the initial values guaranteeing they're the same
     instance.playerNumber = 0;
     instance.RPSMenu = "";
     database.ref(`/gameRoom1`).update({
@@ -91,6 +93,7 @@ $(document).ready(function() {
     $("#scoreCard").empty();
   }
 
+  // REVIEW: same potential bug here. I think these can go at the bottom
   $(document).on("click", "#goAgain", function() {
     database.ref("/gameRoom1").update({
       gameState: "rockPaperScissors",
@@ -106,7 +109,8 @@ $(document).ready(function() {
       database
         .ref()
         .once("value")
-        .then(function(snapshot) {
+        .then(function(snapshot) { // REVIEW: The two blocks below are almost identical
+                                   // REVIEW: A data-prop could be used to prevent replication
           if (event.currentTarget.id === "selectGen1") {
             if (snapshot.val().gameRoom1.player1Entered === false) {
               database.ref("/gameRoom1").update({
@@ -127,10 +131,15 @@ $(document).ready(function() {
     });
   }
 
+  // REVIEW: I think .ref('/gameRoom1') should be used here
   database.ref().on("value", function(stateUpdate) {
+    // REVIEW: Because .val() is a method and not a static value, there may be a performance cost to call it
+    // REVIEW: I would either do const stateValue = stateUpdate.val() or maybe better
+    // REVIEW: const { gameReset, player1ID, player2ID, gameState, player1Entered, player2Entered } = stateUpdate.val()
     // prioritize reseting game
     if (stateUpdate.val().gameRoom1.gameReset === true) {
-      resetGame();
+      resetGame(); // REVIEW: It's no necessary but adding a return here makes it more clear that you're not continuing
+      // REVIEW: Also, if you return then you don't need to else and you reduce the indent depth
     }
     // else statement after reset will wrap everything
     else {
@@ -141,14 +150,15 @@ $(document).ready(function() {
         stateUpdate.val().gameRoom1["player2ID"] === instance.playerID
       ) {
         instance.playerNumber = 2;
-      }
+      } // REVIEW: Both of these being false may be a bug
 
       // phase 1: selecting a team
       if (stateUpdate.val().gameRoom1.gameState === "genSelect") {
         $("#mainContent").html(instance.playerJoin);
 
+        // REVIEW: I think you're adding the gray class on every update which is not what you want
         if (stateUpdate.val().gameRoom1["player1Entered"] === true) {
-          $("#selectGen1").addClass("gray");
+          $("#selectGen1").addClass("gray"); // REVIEW: Class "gray" isn't semantic. Disabled might be a better name.
         }
         if (stateUpdate.val().gameRoom1["player2Entered"] === true) {
           $("#selectGen2").addClass("gray");
@@ -166,7 +176,7 @@ $(document).ready(function() {
         }
 
         if (
-          stateUpdate.val().gameRoom1.player1Entered &&
+          stateUpdate.val().gameRoom1.player1Entered && // REVIEW: Be consistent with comparisons
           stateUpdate.val().gameRoom1.player2Entered === true
         ) {
           // phase 1 timer:
@@ -180,7 +190,7 @@ $(document).ready(function() {
               if ((countDownTimer = 0)) {
                 $("#prompt").text(`BOTH PLAYERS READY!`);
                 $("#timer").text(`GAME STARTING IN ${countDownTimer}...`);
-              } else {
+              } else { // REVIEW: I'm not sure how this doesn't break the game
                 clearInterval(startCountDown);
                 database.ref("/gameRoom1").update({
                   roundTimer: false,
@@ -215,7 +225,7 @@ $(document).ready(function() {
         ) {
           $("#mainContent").html(instance.RPSMenu);
           if (instance.RPSMenu === "") {
-            function createRPSMenu() {
+            function createRPSMenu() { // REVIEW: I'm unsure why a function is used here
               instance.RPSMenu = $("<div id=RPSMenu></div>")
                 .append(
                   `<img id=grass class=iChooseYou src="./assets/images/grass${instance.playerNumber}.png"></img>`
@@ -248,7 +258,7 @@ $(document).ready(function() {
             $(event.target).addClass("choseYou");
           });
         }
-        addPokeListeners();
+        addPokeListeners(); // REVIEW: Again, unsure why there's a function here
 
         // will only call roundTimer if not already running:
         if (stateUpdate.val().gameRoom1.roundTimer === false) {
@@ -282,7 +292,7 @@ $(document).ready(function() {
         if (instance.playerNumber === 1) {
           if (stateUpdate.val().gameRoom1.player1Selected === "none") {
             const RNG = Math.floor(Math.random() * 3 + 1);
-            if (RNG === 1) {
+            if (RNG === 1) { // REVIEW: Instead of this conditional I would use array
               database.ref(`/gameRoom1`).update({
                 player1Selected: "grass"
               });
@@ -300,7 +310,7 @@ $(document).ready(function() {
         if (instance.playerNumber === 2) {
           if (stateUpdate.val().gameRoom1.player2Selected === "none") {
             const RNG = Math.floor(Math.random() * 3 + 1);
-            if (RNG === 1) {
+            if (RNG === 1) { // REVIEW: Again, use an array
               database.ref(`/gameRoom1`).update({
                 player2Selected: "grass"
               });
@@ -316,7 +326,7 @@ $(document).ready(function() {
           }
         }
         $("#timer").empty();
-        let {
+        let { // REVIEW: This should be const
           player1Selected,
           player2Selected,
           player1Wins,
@@ -324,7 +334,7 @@ $(document).ready(function() {
           roundReset
         } = stateUpdate.val().gameRoom1;
         if (player1Selected !== "none" && player2Selected !== "none") {
-          if (instance.playerNumber === 1) {
+          if (instance.playerNumber === 1) { // REVIEW: These contents should be a function
             $("#mainContent").html("<div id=combatPage></div>");
             $("#combatPage")
               .append(

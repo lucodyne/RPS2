@@ -1,3 +1,5 @@
+/* This spacing between selectors was inconsistent.
+You may have had something in mind but I think a blank line between selectors in common. */
 body {
   background: black;
   color: white;
@@ -7,6 +9,7 @@ body {
   min-height: 565px;
 }
 
+/* I didn't know this was a thing! You taught me something */
 ::selection {
   background: transparent;
 }
@@ -21,6 +24,7 @@ body {
   padding: 15px;
   z-index: 1;
 }
+
 #resetButton:hover {
   cursor: pointer;
 }
@@ -37,6 +41,7 @@ body {
   padding: 2%;
   font-size: 120%;
 }
+
 .playerJoin:hover {
   background-color: white;
   color: red;
@@ -54,10 +59,12 @@ body {
   height: 120px;
   opacity: 0.4;
 }
+
 .iChooseYou:hover {
   cursor: pointer;
   opacity: 1;
 }
+
 .choseYou {
   opacity: 1;
 }
@@ -81,31 +88,37 @@ body {
     height: auto;
   }
 }
+
 #combatPage {
   position: absolute;
   width: 100%;
 }
+
 #ally {
   position: relative;
   top: 20vh;
   width: 200px;
   height: auto;
 }
+
 #enemy {
   position: relative;
   width: 180px;
   height: auto;
 }
+
 #scoreBoard {
   position: relative;
   left: -50px;
   bottom: -50px;
   max-width: 300px;
 }
+
 #goAgain {
   line-height: 180%;
   cursor: pointer;
 }
+
 #goAgain:hover {
   color: red;
 }
