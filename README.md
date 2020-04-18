@@ -1,5 +1,7 @@
 # Pokemon Rock Paper Scissors
 (Fire, Water, Grass)
+
+---
  
  ## How to Play
 You and a friend (on another device or browser) will choose between 1st or 2nd generation pokemon to play rock paper scissors with.
@@ -12,10 +14,14 @@ No keyboard controls, sorry!
 
 ![image](./rockpaperscissors-thumb.png)
 
+---
+
 ## Requirements
 
 JavaScript should be enabled in browser
 
 Made with Firebase for real-time database updates
+
+---
 
 [link here](https://lucodyne.github.io/RPS2/)
