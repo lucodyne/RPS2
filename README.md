@@ -17,3 +17,5 @@ No keyboard controls, sorry!
 JavaScript should be enabled in browser
 
 Made with Firebase for real-time database updates
+
+[link here](https://lucodyne.github.io/RPS2/)
